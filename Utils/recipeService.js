@@ -3,8 +3,23 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Use stable model for structured output
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  generationConfig: {
+    responseMimeType: "application/json",
+    responseSchema: {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        ingredients: { type: "array", items: { type: "string" } },
+        instructions: { type: "array", items: { type: "string" } },
+        cook_time: { type: "string" },
+      },
+      required: ["title", "ingredients", "instructions", "cook_time"],
+    },
+  },
+});
 exports.generateRecipeFromPantry = async (pantryItems) => {
   const prompt = `
 Return ONLY valid JSON. No text. No explanation.
