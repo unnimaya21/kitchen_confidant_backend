@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { create } = require("./productsModel");
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -50,6 +51,10 @@ const userSchema = new mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
