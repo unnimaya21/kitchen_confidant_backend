@@ -4,6 +4,7 @@ const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const dotenv = require("dotenv");
 const generateRecipeFromPantry = require("../Utils/recipeService");
 dotenv.config({ path: "./config.env" });
+const PantryItem = require("../Models/pantryItemModel");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -101,6 +102,11 @@ ${cleanedItems.join(", ")}
         .status(400)
         .json({ status: "failed", message: "no item seems edible" });
     } else {
+      const itemsToAdd = ingredients.map((name) => ({ name }));
+      // Add to user's pantry in DB
+      req.user.pantry.push(...itemsToAdd);
+      await req.user.save({ validateBeforeSave: false });
+      PantryItem.insertMany(itemsToAdd);
       // res.status(200).json({
       //   status: "success",
       //   ingredients,

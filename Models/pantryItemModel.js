@@ -25,4 +25,4 @@ const PantryItemSchema = new mongoose.Schema({
 // Indexing for the Expiry Cron Job
 PantryItemSchema.index({ expiryDate: 1 });
 
-module.exports = mongoose.model("PantryItem", PantryItemSchema);
+const PantryItem = mongoose.model("PantryItem", PantryItemSchema);
