@@ -4,12 +4,52 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  fcmToken: { type: String }, // For Firebase Push Notifications
-  dietaryPreferences: [{ type: String }], // e.g., ['Vegan', 'Nut-Free']
-  createdAt: { type: Date, default: Date.now },
+  username: {
+    type: String,
+    required: [true, "Username is required"],
+    unique: true,
+    minlength: 3,
+    maxlength: 30,
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    unique: true,
+    lowercase: true,
+    validate: [validator.isEmail, "Please provide a valid email address"],
+  },
+  password: {
+    type: String,
+    required: [true, "Password is required"],
+    minlength: 8,
+    select: false, // Do not return password field by default
+  },
+  confirmPassword: {
+    type: String,
+    //check if the value of confirmPassword matches password
+    required: [true, "Please confirm your password"],
+    validate: {
+      // This only works on CREATE and SAVE!!!
+      validator: function (val) {
+        return val === this.password;
+      },
+      message: "Passwords do not match",
+    },
+  },
+  photo: String,
+  passwordChangedAt: Date,
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
